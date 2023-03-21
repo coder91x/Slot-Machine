@@ -1,9 +1,13 @@
+import random
+
 MIN_LINES = 1
 MAX_LINES = 3
 MIN_BET = 1
 MAX_BET = 100
+ROWS = 3
+COLS = 3
 
-symbol_count = {
+symbol_counts = {
     'A': 2,
     'B': 4,
     'C': 6,
@@ -16,6 +20,33 @@ symbol_values = {
     'C': 3,
     'D': 2
 }
+
+
+def generate_spin(rows, cols, symbols):
+    all_symbols = []
+    for symbol, symbol_count in symbol_counts.items():
+        for _ in range(symbol_count):
+            all_symbols.append(symbol)
+
+    columns = []
+    for col in range(cols):
+        column = []
+        current_symbols = all_symbols[:]
+        for row in range(rows):
+            value = random.choice(current_symbols)
+            column.append(value)
+            current_symbols.remove(value)
+        columns.append(column)
+    return columns
+
+
+def print_spin_matrix(columns):
+    for row in range(len(columns[0])):
+        for i, col in enumerate(columns):
+            if i != len(columns) - 1:
+                print(col[row], end='|')
+            else:
+                print(col[row])
 
 
 def get_deposit():
@@ -61,9 +92,18 @@ def get_bet():
 
 
 def main():
-    amount = get_deposit()
-    lines = get_number_0f_lines()
-    bet = get_bet()
+    balance = get_deposit()
+    while True:
+        lines = get_number_0f_lines()
+        bet = get_bet()
+        total_bet = bet * lines
+        print(f"You are betting {bet}$ on {lines} lines. Your total bet is {total_bet}$.")
+        if total_bet <= balance:
+            break
+        else:
+            print(f"You have exceeded your balance. Your current balance is {balance}")
+        slots = generate_spin(ROWS, COLS, symbol_counts)
+        print_spin_matrix(slots)
 
 
 main()
