@@ -22,6 +22,22 @@ symbol_values = {
 }
 
 
+def get_winnings(columns, lines, bet, values):
+    winnings = 0
+    winnings_lines = []
+    for line in range(lines):
+        symbol = columns[0][line]
+        for col in columns:
+            symbol_to_check = col[line]
+            if symbol != symbol_to_check:
+                break
+        else:
+            winnings += values[symbol] * bet
+            winnings_lines.append(line + 1)
+
+    return winnings, winnings_lines
+
+
 def generate_spin(rows, cols, symbols):
     all_symbols = []
     for symbol, symbol_count in symbol_counts.items():
@@ -91,19 +107,34 @@ def get_bet():
     return bet
 
 
+def game(balance):
+    lines = get_number_0f_lines()
+    while True:
+        bet = get_bet()
+        total_bet = bet * lines
+        print(f"You are betting {bet}$ on {lines} lines. Your total bet is ${total_bet}.")
+        if total_bet >= balance:
+            print(f"You have exceeded your balance. Your current balance is {balance}")
+        else:
+            break
+    slots = generate_spin(ROWS, COLS, symbol_counts)
+    print_spin_matrix(slots)
+    winnings, winnings_lines = get_winnings(slots, lines, bet, symbol_values)
+    print(f"You have won ${winnings} on line", *winnings_lines)
+    return winnings - total_bet
+
+
 def main():
     balance = get_deposit()
     while True:
-        lines = get_number_0f_lines()
-        bet = get_bet()
-        total_bet = bet * lines
-        print(f"You are betting {bet}$ on {lines} lines. Your total bet is {total_bet}$.")
-        if total_bet <= balance:
+        print(f"Current balance is {balance}")
+        spin = input("Press enter to continue or q to quit")
+        if spin == 'q':
             break
         else:
-            print(f"You have exceeded your balance. Your current balance is {balance}")
-        slots = generate_spin(ROWS, COLS, symbol_counts)
-        print_spin_matrix(slots)
+            balance += game(balance)
+    print(f"You have left with ${balance}")
+
 
 
 main()
